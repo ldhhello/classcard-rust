@@ -1,8 +1,19 @@
 mod classcard;
 use std::io::Write;
+use clap::Parser;
 use classcard::socket::{Socket, QuestList, Quest};
 use tokio::io::{AsyncReadExt};
 use colored::Colorize;
+
+#[derive(Parser, Debug)]
+#[command(about, version, before_help = 
+    format!("{} by {}, Version {}", "classcard-rust".bold().yellow(), "Donghyun Lee".bold().bright_cyan(), env!("CARGO_PKG_VERSION"))
+)]
+struct Cli {
+    /// 응답 버퍼의 크기입니다.
+    #[arg(short, long, default_value_t = 5)]
+    buffer_size: usize,
+}
 
 pub async fn input() -> Result<String, Box<dyn std::error::Error>> {
     let mut res = Vec::new();
@@ -27,6 +38,8 @@ pub async fn input_num() -> Result<i32, Box<dyn std::error::Error>> {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let cli = Cli::parse();
+
     println!("{} by {}", "classcard-rust".bold().yellow(), "Donghyun Lee".bold().bright_cyan());
     println!("{}: https://github.com/ldhhello", "Github".bold().yellow());
     println!();
@@ -41,7 +54,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut socket = Socket::connect(String::from("mobile3.classcard.net"), battle_id).await?
         .set_browser(String::from("Chrome"))
-        .set_platform(String::from("Mac OS X"));
+        .set_platform(String::from("Mac OS X"))
+        .set_buffer_size(cli.buffer_size);
 
     socket.check_battle(battle_id).await?;
 
@@ -54,8 +68,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("{}{}", "시작".bold().bright_green(), "을 기다리는 중");
     socket.wait_for_start().await?;
 
+    println!();
     println!("{}", "배틀을 시작합니다.".bold());
-    println!("{}~{} 이외의 답을 입력하면 {}됩니다.", "1".bold(), "4".bold(), "최종 제출".bold().cyan());
+    println!("{} 또는 {}을 입력하면 {}됩니다.", "0".bold(), "음수 값".bold(), "최종 제출".bold().cyan());
 
     for (idx, quest) in quest_list.iter().enumerate() {
         println!();
@@ -65,11 +80,27 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("{}. {}", (i+1).to_string().bold(), q.bold().bright_magenta());
         }
 
-        print!("{}", "-> ".bold().cyan());
-        std::io::stdout().flush()?;
-        let ans = input_num().await.unwrap_or(-1);
+        // print!("{}", "-> ".bold().cyan());
+        // std::io::stdout().flush()?;
+        // let ans = input_num().await.unwrap_or(-1);
 
-        if ans <= 0 || ans > 4 {
+        // if ans <= 0 || ans > 4 {
+        //     break;
+        // }
+        let ans = loop {
+            print!("{}", "-> ".bold().cyan());
+            std::io::stdout().flush()?;
+            let ans = input_num().await.unwrap_or(1000);
+
+            if 1 <= ans && ans <= 4 {
+                break ans;
+            }
+            else if ans <= 0 {
+                break ans;
+            }
+        };
+
+        if ans <= 0 {
             break;
         }
 

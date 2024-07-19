@@ -22,6 +22,7 @@ pub struct Socket {
     username: String,
     quest_cnt: i32,
     correct_cnt: i32,
+    buffer_size: usize,
 }
 
 impl Socket {
@@ -91,7 +92,8 @@ impl Socket {
             rank_id: String::from(""),
             username: String::from(""),
             quest_cnt: 0,
-            correct_cnt: 0
+            correct_cnt: 0,
+            buffer_size: 5
         })
     }
     pub fn set_browser(mut self, browser: String) -> Self {
@@ -104,6 +106,10 @@ impl Socket {
     }
     pub fn set_user_agent(mut self, agent: String) -> Self {
         self.user_agent = agent;
+        return self;
+    }
+    pub fn set_buffer_size(mut self, buffer_size: usize) -> Self {
+        self.buffer_size = buffer_size;
         return self;
     }
 }
@@ -311,7 +317,7 @@ impl Socket {
             self.correct_cnt += 1;
         }
 
-        if self.send_buffer.len() < 5 {
+        if self.send_buffer.len() < self.buffer_size {
             return Ok(is_correct);
         }
 
