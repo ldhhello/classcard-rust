@@ -28,25 +28,25 @@ pub struct Socket {
 impl Socket {
     fn get_port(battle_id: i32) -> i32 {
         let mut port = 800;
-		if battle_id > 18999 && battle_id < 28000 {
-			port = 801;
-		} else if battle_id > 27999 && battle_id < 37000 {
-			port = 802;
-		} else if battle_id > 36999 && battle_id < 46000 {
-			port = 803;
-		} else if battle_id > 45999 && battle_id < 55000 {
-			port = 804;
-		} else if battle_id > 54999 && battle_id < 64000 {
-			port = 805;
-		} else if battle_id > 63999 && battle_id < 73000 {
-			port = 806;
-		} else if battle_id > 72999 && battle_id < 82000 {
-			port = 807;
-		} else if battle_id > 81999 && battle_id < 91000 {
+        if battle_id > 18999 && battle_id < 28000 {
+            port = 801;
+        } else if battle_id > 27999 && battle_id < 37000 {
+            port = 802;
+        } else if battle_id > 36999 && battle_id < 46000 {
+            port = 803;
+        } else if battle_id > 45999 && battle_id < 55000 {
+            port = 804;
+        } else if battle_id > 54999 && battle_id < 64000 {
+            port = 805;
+        } else if battle_id > 63999 && battle_id < 73000 {
+            port = 806;
+        } else if battle_id > 72999 && battle_id < 82000 {
+            port = 807;
+        } else if battle_id > 81999 && battle_id < 91000 {
             port = 808;
-		} else if battle_id > 90999 && battle_id < 100000 {
-			port = 809;
-		}
+        } else if battle_id > 90999 && battle_id < 100000 {
+            port = 809;
+        }
 
         return port;
     }
@@ -337,6 +337,7 @@ impl Socket {
         });
 
         self.socket.lock().await.send(Message::text(json.to_string())).await?;
+
 
         let Some(Ok(msg)) = self.socket.lock().await.next().await else { return Err(Box::from("Failed to read from socket")); };
         let Some(data) = msg.as_text() else { return Err(Box::from("Failed to get data")); };
