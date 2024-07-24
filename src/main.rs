@@ -1,8 +1,8 @@
 mod classcard;
 use std::io::Write;
 use clap::Parser;
-use classcard::socket::{Socket, QuestList, Quest};
-use tokio::io::{AsyncReadExt};
+use classcard::socket::Socket;
+use tokio::io::AsyncReadExt;
 use colored::Colorize;
 
 #[derive(Parser, Debug)]

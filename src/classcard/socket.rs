@@ -1,8 +1,8 @@
 use std::{mem::swap, str::FromStr, sync::Arc};
 
 use futures_util::{SinkExt, StreamExt};
-use http::{header::{self}, HeaderValue, Uri};
-use tokio::{net::{TcpListener, TcpStream}, sync::Mutex};
+use http::{header, HeaderValue, Uri};
+use tokio::{net::TcpStream, sync::Mutex};
 use tokio_websockets::{ClientBuilder, MaybeTlsStream, Message, WebSocketStream};
 
 use serde::{Deserialize, Serialize};
@@ -344,9 +344,8 @@ impl Socket {
 
         self.socket.lock().await.send(Message::text(json.to_string())).await?;
 
-
         let Some(Ok(msg)) = self.socket.lock().await.next().await else { return Err(Box::from("Failed to read from socket")); };
-        let Some(data) = msg.as_text() else { return Err(Box::from("Failed to get data")); };
+        let Some(_) = msg.as_text() else { return Err(Box::from("Failed to get data")); };
 
         //println!("{}", data);
 
