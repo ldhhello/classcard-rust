@@ -17,6 +17,10 @@ struct Cli {
     /// 문제를 맞았을 때 얻는 점수입니다. 
     #[arg(short, long, default_value_t = 100)]
     correct_score: i32,
+
+    /// 문제를 틀렸을 때 얻는 점수입니다.
+    #[arg(short, long, default_value_t = 0)]
+    fail_score: i32,
 }
 
 pub async fn input() -> Result<String, Box<dyn std::error::Error>> {
@@ -60,7 +64,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .set_browser(String::from("Chrome"))
         .set_platform(String::from("Mac OS X"))
         .set_buffer_size(cli.buffer_size)
-        .set_correct_score(cli.correct_score);
+        .set_correct_score(cli.correct_score)
+        .set_fail_score(cli.fail_score);
 
     socket.check_battle(battle_id).await?;
 

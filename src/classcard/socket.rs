@@ -23,7 +23,8 @@ pub struct Socket {
     quest_cnt: i32,
     correct_cnt: i32,
     buffer_size: usize,
-    correct_score: i32
+    correct_score: i32,
+    fail_score: i32,
 }
 
 impl Socket {
@@ -95,7 +96,8 @@ impl Socket {
             quest_cnt: 0,
             correct_cnt: 0,
             buffer_size: 5,
-            correct_score: 100
+            correct_score: 100,
+            fail_score: 0, 
         })
     }
     pub fn set_browser(mut self, browser: String) -> Self {
@@ -116,6 +118,10 @@ impl Socket {
     }
     pub fn set_correct_score(mut self, correct_score: i32) -> Self {
         self.correct_score = correct_score;
+        return self;
+    }
+    pub fn set_fail_score(mut self, fail_score: i32) -> Self {
+        self.fail_score = fail_score;
         return self;
     }
 }
@@ -311,7 +317,7 @@ impl Socket {
         let is_correct = if quest.back_quest[answer as usize] == quest.back { true }
         else { false };
 
-        let score = if is_correct { self.correct_score } else { 0 };
+        let score = if is_correct { self.correct_score } else { self.fail_score };
 
         self.total_score += score;
 
