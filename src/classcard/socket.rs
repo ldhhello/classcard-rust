@@ -344,11 +344,12 @@ impl Socket {
 
         //println!("{}", data);
 
-        let data: SendRankResult = serde_json::from_str(data)?;
+        //let data: SendRankResult = serde_json::from_str(data)?;
 
-        if data.cmd != "b_send_rank" {
-            return Err(Box::from("Server sent error"));
-        }
+        // 끝나기 10초 전에 무슨 메서드가 하나 오는 것 같다. 무시해 주면 될 듯
+        // if data.cmd != "b_send_rank" {
+        //     return Err(Box::from("Server sent error"));
+        // }
 
         Ok(is_correct)
     }

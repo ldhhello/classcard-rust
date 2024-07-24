@@ -13,6 +13,8 @@ struct Cli {
     /// 응답 버퍼의 크기입니다.
     #[arg(short, long, default_value_t = 5)]
     buffer_size: usize,
+
+    
 }
 
 pub async fn input() -> Result<String, Box<dyn std::error::Error>> {
@@ -80,13 +82,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("{}. {}", (i+1).to_string().bold(), q.bold().bright_magenta());
         }
 
-        // print!("{}", "-> ".bold().cyan());
-        // std::io::stdout().flush()?;
-        // let ans = input_num().await.unwrap_or(-1);
-
-        // if ans <= 0 || ans > 4 {
-        //     break;
-        // }
         let ans = loop {
             print!("{}", "-> ".bold().cyan());
             std::io::stdout().flush()?;
