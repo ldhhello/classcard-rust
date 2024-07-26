@@ -47,7 +47,7 @@ pub async fn input_num() -> Result<i32, Box<dyn std::error::Error>> {
 #[cfg(target_family = "windows")]
 mod console_setter {
     #[allow(non_camel_case_types)]
-    type HANDLE = *mut std::ffi::c_void; // 원래 명세는 void*이긴 한데.. 64비트 정수형으로 받아도 괜찮지 않을까?
+    type HANDLE = *mut std::ffi::c_void;
     
     #[allow(non_camel_case_types)]
     type DWORD = u32;
@@ -55,27 +55,30 @@ mod console_setter {
     const STD_OUTPUT_HANDLE: DWORD = 4294967285;
     const ENABLE_VIRTUAL_TERMINAL_INPUT: DWORD = 0x0200;
     
+    const TRUE: i32 = 1;
+    const FALSE: i32 = 0;
+    
     extern "C" {
         #[allow(non_snake_case)]
         fn GetStdHandle(nStdHandle: DWORD) -> HANDLE;
-        fn GetConsoleMode(hConsoleHandle: HANDLE, lpMode: *mut DWORD) -> bool;
-        fn SetConsoleMode(hConsoleHandle: HANDLE, dwMode: DWORD) -> bool;
+        fn GetConsoleMode(hConsoleHandle: HANDLE, lpMode: *mut DWORD) -> i32;
+        fn SetConsoleMode(hConsoleHandle: HANDLE, dwMode: DWORD) -> i32;
     }
     
     pub fn set_console() -> Result<(), Box<dyn std::error::Error>> {
         unsafe {
             let handle = GetStdHandle(STD_OUTPUT_HANDLE);
-            let old_mode: DWORD = 0;
-            if !GetConsoleMode(handle, &mut old_mode) {
+            let mut old_mode: DWORD = 0;
+            if GetConsoleMode(handle, &mut old_mode) == FALSE {
                 return Err(Box::from("GetConsoleMode() Failed"));
             }
     
-            if !SetConsoleMode(handle, old_mode | ENABLE_VIRTUAL_TERMINAL_INPUT) {
+            if SetConsoleMode(handle, old_mode | ENABLE_VIRTUAL_TERMINAL_INPUT) == FALSE {
                 return Err(Box::from("SetConsoleMode() Failed"));
             }
         }
     
-        Ok(());
+        Ok(())
     }
 }
 
