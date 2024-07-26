@@ -10,6 +10,17 @@ cargo run --release
 ```
 를 실행해 빌드 및 실행할 수 있습니다.
 
+### RUSTLS 기반 빌드를 하고 싶은 경우
+```bash
+cargo build --release --no-default-features --features rustls
+cargo run --release --no-default-features --features rustls
+```
+를 실행하면 됩니다.
+
+기본값인 native-tls 기반 빌드가 먹히지 않을 때 활용해보세요.
+리눅스 환경에서 openssl이 깔려있지 않을 때 유용합니다.
+
+
 ## 실행 화면
 ![예시 이미지](example.png)
 
