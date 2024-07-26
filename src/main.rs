@@ -63,6 +63,7 @@ mod console_setter {
         fn GetStdHandle(nStdHandle: DWORD) -> HANDLE;
         fn GetConsoleMode(hConsoleHandle: HANDLE, lpMode: *mut DWORD) -> i32;
         fn SetConsoleMode(hConsoleHandle: HANDLE, dwMode: DWORD) -> i32;
+        fn GetLastError() -> DWORD;
     }
     
     pub fn set_console() -> Result<(), Box<dyn std::error::Error>> {
@@ -70,10 +71,12 @@ mod console_setter {
             let handle = GetStdHandle(STD_OUTPUT_HANDLE);
             let mut old_mode: DWORD = 0;
             if GetConsoleMode(handle, &mut old_mode) == FALSE {
+                println!("GetLastError() : {}", GetLastError());
                 return Err(Box::from("GetConsoleMode() Failed"));
             }
     
             if SetConsoleMode(handle, old_mode | ENABLE_VIRTUAL_TERMINAL_INPUT) == FALSE {
+                println!("GetLastError() : {}", GetLastError());
                 return Err(Box::from("SetConsoleMode() Failed"));
             }
         }
