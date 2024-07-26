@@ -18,4 +18,4 @@ rustls = { version = "0.23.12", optional = true }
 [features]
 default = ["native-tls"]
 native-tls = ["tokio-websockets/native-tls", "reqwest/native-tls"]
-rustls = ["dep:rustls", "tokio-websockets/rustls-webpki-roots", "tokio-websockets/rustls-tls12", "tokio-websockets/aws_lc_rs"]
+rustls = ["dep:rustls", "tokio-websockets/rustls-webpki-roots", "tokio-websockets/rustls-tls12", "tokio-websockets/aws_lc_rs", "reqwest/rustls-tls"]
