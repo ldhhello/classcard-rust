@@ -44,8 +44,52 @@ pub async fn input_num() -> Result<i32, Box<dyn std::error::Error>> {
     return Ok(str::parse::<i32>(&str)?);
 }
 
+#[cfg(target_family = "windows")]
+mod console_setter {
+    #[allow(non_camel_case_types)]
+    type HANDLE = *mut std::ffi::c_void; // 원래 명세는 void*이긴 한데.. 64비트 정수형으로 받아도 괜찮지 않을까?
+    
+    #[allow(non_camel_case_types)]
+    type DWORD = u32;
+    
+    const STD_OUTPUT_HANDLE: DWORD = 4294967285;
+    const ENABLE_VIRTUAL_TERMINAL_INPUT: DWORD = 0x0200;
+    
+    extern "C" {
+        #[allow(non_snake_case)]
+        fn GetStdHandle(nStdHandle: DWORD) -> HANDLE;
+        fn GetConsoleMode(hConsoleHandle: HANDLE, lpMode: *mut DWORD) -> bool;
+        fn SetConsoleMode(hConsoleHandle: HANDLE, dwMode: DWORD) -> bool;
+    }
+    
+    pub fn set_console() -> Result<(), Box<dyn std::error::Error>> {
+        unsafe {
+            let handle = GetStdHandle(STD_OUTPUT_HANDLE);
+            let old_mode: DWORD = 0;
+            if !GetConsoleMode(handle, &mut old_mode) {
+                return Err(Box::from("GetConsoleMode() Failed"));
+            }
+    
+            if !SetConsoleMode(handle, old_mode | ENABLE_VIRTUAL_TERMINAL_INPUT) {
+                return Err(Box::from("SetConsoleMode() Failed"));
+            }
+        }
+    
+        Ok(());
+    }
+}
+
+#[cfg(not(target_family = "windows"))]
+mod console_setter {
+    pub fn set_console() -> Result<(), Box<dyn std::error::Error>> { Ok(()) }
+}
+
+use console_setter::set_console;
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    set_console()?;
+
     let cli = Cli::parse();
 
     println!("{} by {}", "classcard-rust".bold().yellow(), "Donghyun Lee".bold().bright_cyan());
