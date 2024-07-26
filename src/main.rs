@@ -48,21 +48,20 @@ pub async fn input_num() -> Result<i32, Box<dyn std::error::Error>> {
 mod console_setter {
     #[allow(non_camel_case_types)]
     type HANDLE = *mut std::ffi::c_void;
-    
-    #[allow(non_camel_case_types)]
     type DWORD = u32;
+    type BOOL = i32;
     
     const STD_OUTPUT_HANDLE: DWORD = 4294967285;
-    const ENABLE_VIRTUAL_TERMINAL_INPUT: DWORD = 0x0200;
+    const ENABLE_VIRTUAL_TERMINAL_PROCESSING: DWORD = 0x0004;
     
-    const TRUE: i32 = 1;
-    const FALSE: i32 = 0;
+    const TRUE: BOOL = 1;
+    const FALSE: BOOL = 0;
     
     extern "C" {
         #[allow(non_snake_case)]
         fn GetStdHandle(nStdHandle: DWORD) -> HANDLE;
-        fn GetConsoleMode(hConsoleHandle: HANDLE, lpMode: *mut DWORD) -> i32;
-        fn SetConsoleMode(hConsoleHandle: HANDLE, dwMode: DWORD) -> i32;
+        fn GetConsoleMode(hConsoleHandle: HANDLE, lpMode: *mut DWORD) -> BOOL;
+        fn SetConsoleMode(hConsoleHandle: HANDLE, dwMode: DWORD) -> BOOL;
         fn GetLastError() -> DWORD;
     }
     
@@ -71,12 +70,12 @@ mod console_setter {
             let handle = GetStdHandle(STD_OUTPUT_HANDLE);
             let mut old_mode: DWORD = 0;
             if GetConsoleMode(handle, &mut old_mode) == FALSE {
-                println!("GetLastError() : {}", GetLastError());
+                eprintln!("GetLastError() : {}", GetLastError());
                 return Err(Box::from("GetConsoleMode() Failed"));
             }
     
-            if SetConsoleMode(handle, old_mode | ENABLE_VIRTUAL_TERMINAL_INPUT) == FALSE {
-                println!("GetLastError() : {}", GetLastError());
+            if SetConsoleMode(handle, old_mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING) == FALSE {
+                eprintln!("GetLastError() : {}", GetLastError());
                 return Err(Box::from("SetConsoleMode() Failed"));
             }
         }
