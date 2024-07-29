@@ -1,12 +1,10 @@
+use super::error::Error;
 use std::{mem::swap, str::FromStr, sync::Arc};
-
 use futures_util::{SinkExt, StreamExt};
 use http::{header, HeaderValue, Uri};
 use tokio::{net::TcpStream, sync::Mutex};
 use tokio_websockets::{ClientBuilder, MaybeTlsStream, Message, WebSocketStream};
-
 use serde::{Deserialize, Serialize};
-
 use serde_json::json;
 
 pub struct Socket {
@@ -149,9 +147,9 @@ impl Socket {
 
         self.socket.lock().await.send(Message::text(json.to_string())).await?;
 
-        let Some(Ok(msg)) = self.socket.lock().await.next().await else { return Err(Box::from("Failed to read from socket")); };
+        let Some(Ok(msg)) = self.socket.lock().await.next().await else { return Err(Error::ReadError.into()); };
 
-        let Some(data) = msg.as_text() else { return Err(Box::from("Failed to get data")); };
+        let Some(data) = msg.as_text() else { return Err(Error::GetDataError.into()); };
 
         let res: CheckResult = serde_json::from_str(data)?;
 
@@ -200,9 +198,9 @@ impl Socket {
 
         self.socket.lock().await.send(Message::text(json.to_string())).await?;
 
-        let Some(Ok(msg)) = self.socket.lock().await.next().await else { return Err(Box::from("Failed to read from socket")); };
+        let Some(Ok(msg)) = self.socket.lock().await.next().await else { return Err(Error::ReadError.into()); };
 
-        let Some(data) = msg.as_text() else { return Err(Box::from("Failed to get data")); };
+        let Some(data) = msg.as_text() else { return Err(Error::GetDataError.into()); };
 
         let res: JoinResult = serde_json::from_str(data)?;
 
@@ -224,7 +222,7 @@ impl Socket {
         self.socket.lock().await.send(Message::text(json.to_string())).await?;
 
         // b_team 메서드가 들어오는데 별로 안 중요해 보임
-        let Some(Ok(_)) = self.socket.lock().await.next().await else { return Err(Box::from("Failed to read from socket")); };
+        let Some(Ok(_)) = self.socket.lock().await.next().await else { return Err(Error::ReadError.into()); };
 
         Ok(res)
     }
@@ -289,15 +287,15 @@ impl Socket {
             return Ok(())
         }
 
-        let Some(Ok(msg)) = self.socket.lock().await.next().await else { return Err(Box::from("Failed to read from socket")); };
-        let Some(data) = msg.as_text() else { return Err(Box::from("Failed to get data")); };
+        let Some(Ok(msg)) = self.socket.lock().await.next().await else { return Err(Error::ReadError.into()); };
+        let Some(data) = msg.as_text() else { return Err(Error::GetDataError.into()); };
 
         //println!("{}", data);
 
         let data: TestStart = serde_json::from_str(data)?;
 
         if data.cmd != "b_test_start" {
-            return Err(Box::from("Server sent error"));
+            return Err(Error::InvalidCmd(data.cmd).into());
         }
 
         self.rank_id = data.rank_id;
@@ -350,8 +348,8 @@ impl Socket {
 
         self.socket.lock().await.send(Message::text(json.to_string())).await?;
 
-        let Some(Ok(msg)) = self.socket.lock().await.next().await else { return Err(Box::from("Failed to read from socket")); };
-        let Some(_) = msg.as_text() else { return Err(Box::from("Failed to get data")); };
+        let Some(Ok(msg)) = self.socket.lock().await.next().await else { return Err(Error::ReadError.into()); };
+        let Some(_) = msg.as_text() else { return Err(Error::GetDataError.into()); };
 
         //println!("{}", data);
 
